@@ -3,9 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useDispatch } from 'react-redux'; // 1. Import useDispatch
+import { useDispatch } from 'react-redux'; 
 import { loginUser } from '../services/authService';
-import { setUser } from '../store/authSlice'; // 2. Import setUser action
+import { setUser } from '../store/authSlice'; 
 
 const loginSchema = yup.object().shape({
   email: yup.string().email('Please enter a valid email format.').required('Email is required.'),
@@ -14,7 +14,7 @@ const loginSchema = yup.object().shape({
 
 const LoginScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch(); // 3. Initialize dispatch
+  const dispatch = useDispatch();
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(loginSchema),
@@ -31,13 +31,11 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    // 4. Completed TODO: Save user credentials to Redux global state
+    // Save user to Redux store
     dispatch(setUser({ uid: user.uid, email: user.email }));
 
     Alert.alert('Success', `Welcome back, ${user.email}!`);
-    
-    // 5. Navigate directly to Andres's Map Screen
-    navigation.navigate('Map'); 
+    // Note: Navigation is handled automatically by auth state listener in AppNavigator
   };
 
   return (
@@ -82,7 +80,6 @@ const LoginScreen = ({ navigation }) => {
         {isLoading ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.loginButtonText}>Sign In</Text>}
       </TouchableOpacity>
       
-      {/* Clicking this will now correctly navigate without crashing */}
       <TouchableOpacity onPress={() => navigation.navigate('ProfileRegistration')}>
         <Text style={styles.registerPrompt}>Don't have an account? Register here.</Text>
       </TouchableOpacity>

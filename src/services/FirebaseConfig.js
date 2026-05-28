@@ -1,9 +1,7 @@
-// src/services/FirebaseConfig.js
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-// En Android, con el archivo google-services.json, 
-// no necesitas inicializar manualmente con un objeto de configuración (API Keys),
-// el SDK lo hace automáticamente al compilar.
+// Android SDK auto-initializes via google-services.json at build time.
+// Manual initialization with API keys is not required.
 
 export { auth, firestore };
