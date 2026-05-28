@@ -17,6 +17,7 @@
     "@react-native/new-app-screen": "0.85.3",
     "@react-navigation/bottom-tabs": "^7.16.2",
     "@react-navigation/native": "^7.2.5",
+    "@stripe/stripe-react-native": "^0.66.0",
     "react": "19.2.3",
     "react-hook-form": "^7.76.1",
     "react-native": "0.85.3",
