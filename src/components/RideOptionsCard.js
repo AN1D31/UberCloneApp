@@ -14,7 +14,7 @@ const RIDE_CATEGORIES = [
   { id: 'cat-3', title: 'Premium', multiplier: 1.8 },
 ];
 
-export const RideOptionsCard = () => {
+export const RideOptionsCard = ({ onRideConfirmed, isRideActive }) => {
   const travelTimeInformation = useSelector(selectTravelTimeInformation);
   const [selectedId, setSelectedId] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -100,12 +100,14 @@ const fetchPaymentIntentClientSecret = async (amount) => {
     // Present the sheet to the user
     const { error: paymentError } = await presentPaymentSheet();
 
-    if (paymentError) {
-      Alert.alert(`Payment failed`, paymentError.message);
-    } else {
-      Alert.alert('Success!', 'Your ride is confirmed and paid.');
-      // Next Step: Trigger the real-time driver tracking animation here!
-    }
+      if (paymentError) {
+        Alert.alert(`Payment failed`, paymentError.message);
+      } else {
+        Alert.alert('Success!', 'Your ride is confirmed and paid.');
+        onRideConfirmed(); // <- Trigger the real-time tracking animation here!
+      }
+
+    
     
     setIsProcessing(false);
   };

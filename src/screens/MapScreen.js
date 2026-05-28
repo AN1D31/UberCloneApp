@@ -1,15 +1,13 @@
-// src/screens/MapScreen.js
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectOrigin, selectDestination, setTravelTimeInformation } from '../store/navSlice';
 import { LocationSearchBar } from '../components/LocationSearchBar';
-import { RideOptionsCard } from '../components/RideOptionsCard'; // Lo crearemos en el Paso 2
+import { RideOptionsCard } from '../components/RideOptionsCard';
 
-// INSERT YOUR ACTUAL API KEY HERE
-const GOOGLE_MAPS_API_KEY = "TU_API_KEY_AQUI"; 
+const GOOGLE_MAPS_API_KEY = "AIzaSyCV20t3wxIbdLwTc0TTGJ3vwxvT57sDX5w";
 
 export const MapScreen = () => {
   const origin = useSelector(selectOrigin);
@@ -17,13 +15,46 @@ export const MapScreen = () => {
   const dispatch = useDispatch();
   const mapRef = useRef(null);
 
+  // Real-time tracking states
+  const [isRideActive, setIsRideActive] = useState(false);
+  const [driverLocation, setDriverLocation] = useState(null);
+
+  // Simulate Driver Moving towards Origin via intervals
   useEffect(() => {
-    if (!origin || !destination) return;
-    // We handle the camera adjustment inside MapViewDirections 'onReady' now
-  }, [origin, destination]);
+    if (!isRideActive || !origin?.location) return;
+
+    // Start driver slightly offset to simulate approaching
+    let progress = 0;
+    const startLat = origin.location.latitude + 0.005;
+    const startLng = origin.location.longitude + 0.005;
+    
+    setDriverLocation({ latitude: startLat, longitude: startLng });
+
+    const trackingInterval = setInterval(() => {
+      progress += 0.1;
+      if (progress >= 1.0) {
+        clearInterval(trackingInterval);
+        Alert.alert("Driver Arrived", "Your driver has arrived at your location!");
+        setIsRideActive(false);
+        setDriverLocation(null);
+        return;
+      }
+
+      // Linear interpolation to smoothly move the car marker
+      const currentLat = startLat + (origin.location.latitude - startLat) * progress;
+      const currentLng = startLng + (origin.location.longitude - startLng) * progress;
+
+      setDriverLocation({
+        latitude: currentLat,
+        longitude: currentLng
+      });
+    }, 2000); // Updates every 2 seconds
+
+    return () => clearInterval(trackingInterval);
+  }, [isRideActive, origin]);
 
   const defaultRegion = {
-    latitude: 6.2442, // Medellin center
+    latitude: 6.2442,
     longitude: -75.5812,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
@@ -31,9 +62,9 @@ export const MapScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Top half: Map and Search */}
       <View style={styles.mapContainer}>
-        <LocationSearchBar type="destination" />
+        {/* Hide search bar if the ride is already processing/active */}
+        {!isRideActive && <LocationSearchBar type="destination" />}
 
         <MapView
           ref={mapRef}
@@ -41,7 +72,7 @@ export const MapScreen = () => {
           style={styles.map}
           initialRegion={defaultRegion}
         >
-          {origin?.location && destination?.location && (
+          {origin?.location && destination?.location && !isRideActive && (
             <MapViewDirections
               origin={origin.location}
               destination={destination.location}
@@ -49,50 +80,49 @@ export const MapScreen = () => {
               strokeWidth={4}
               strokeColor="black"
               onReady={(result) => {
-                // Adjust camera to fit the generated route
                 mapRef.current.fitToCoordinates(result.coordinates, {
                   edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
                 });
-                
-                // Dispatch calculation results to Redux Store
                 dispatch(setTravelTimeInformation({
-                  distance: result.distance, // in km
-                  duration: result.duration, // in mins
+                  distance: result.distance,
+                  duration: result.duration,
                 }));
               }}
             />
           )}
 
           {origin?.location && (
-            <Marker coordinate={origin.location} title="Origin" identifier="origin" pinColor="#000000" />
+            <Marker coordinate={origin.location} title="Pickup Location" identifier="origin" pinColor="#000000" />
           )}
 
-          {destination?.location && (
-            <Marker coordinate={destination.location} title="Destination" identifier="destination" pinColor="#EA4335" />
+          {destination?.location && !isRideActive && (
+            <Marker coordinate={destination.location} title="Dropoff" identifier="destination" pinColor="#EA4335" />
+          )}
+
+          {/* Real-time Driver Animated Marker */}
+          {driverLocation && (
+            <Marker
+              coordinate={driverLocation}
+              title="Your Driver"
+              description="Approaching..."
+              identifier="driver"
+              pinColor="#00FF00" // Can be replaced with a car icon using image={require('...')}
+            />
           )}
         </MapView>
       </View>
 
-      {/* Bottom half: Ride Options Card */}
       <View style={styles.bottomContainer}>
-        <RideOptionsCard />
+        {/* Pass the state setter to the card so the payment success can trigger it */}
+        <RideOptionsCard onRideConfirmed={() => setIsRideActive(true)} isRideActive={isRideActive} />
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  mapContainer: {
-    flex: 2, // Takes 2/3 of the screen
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  bottomContainer: {
-    flex: 1, // Takes 1/3 of the screen for the UI card
-    backgroundColor: 'white',
-  }
+  container: { flex: 1 },
+  mapContainer: { flex: 2 },
+  map: { ...StyleSheet.absoluteFillObject },
+  bottomContainer: { flex: 1, backgroundColor: 'white' }
 });
