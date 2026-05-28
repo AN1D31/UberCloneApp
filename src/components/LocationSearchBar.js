@@ -4,7 +4,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { useDispatch } from 'react-redux';
 import { setOrigin, setDestination } from '../store/navSlice';
 
-// INSERT YOUR ACTUAL API KEY HERE
+
 const GOOGLE_MAPS_API_KEY = "AIzaSyCV20t3wxIbdLwTc0TTGJ3vwxvT57sDX5w"; 
 
 export const LocationSearchBar = ({ type = 'origin' }) => {
