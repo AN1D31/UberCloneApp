@@ -20,15 +20,16 @@ export const loginUser = async (email, password) => {
  * Registers a new user.
  * @param {string} email
  * @param {string} password
+ * @param {object} additionalData
  * @returns {Promise<{user: object|null, error: string|null}>}
  */
 export const registerUser = async (email, password, additionalData) => {
   try {
-    // 1. Crea el usuario en Firebase Auth
+    // Create auth user
     const userCredential = await auth().createUserWithEmailAndPassword(email, password);
     const uid = userCredential.user.uid;
 
-    // 2. Guarda el resto de los datos en Firestore
+    // Store extra user profile data in firestore
     await firestore().collection('users').doc(uid).set({
       ...additionalData,
       email: email,

@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import auth from '@react-native-firebase/auth';
 import { setUser, logout } from '../store/authSlice';
 
-// Screens
 import LoginScreen from '../screens/LoginScreen';
 import { ProfileRegistrationScreen } from '../screens/ProfileRegistrationScreen';
 import { DrawerNavigator } from './DrawerNavigator';
@@ -15,10 +14,10 @@ export const AppNavigator = () => {
   const [initializing, setInitializing] = useState(true);
   const dispatch = useDispatch();
   
-  // Leemos el estado global para saber si hay alguien logueado
+  // Check global auth state
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
-  // Escuchamos a Firebase cada vez que la app se abre
+  // Listen for Firebase auth state changes on mount
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged((user) => {
       if (user) {
@@ -28,21 +27,23 @@ export const AppNavigator = () => {
       }
       if (initializing) setInitializing(false);
     });
-    return subscriber; // Limpieza al desmontar
+    
+    return subscriber; // Cleanup subscription
   }, [initializing, dispatch]);
 
-  if (initializing) return null; // Aquí podría ir un logo de carga
+  // TODO: Add splash screen component here later
+  if (initializing) return null; 
 
   return (
     <Stack.Navigator>
       {!isAuthenticated ? (
-        // --- GRUPO 1: PANTALLAS DE INVITADOS ---
+        // Unauthenticated flow
         <>
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ProfileRegistration" component={ProfileRegistrationScreen} options={{ title: 'Register Profile' }} />
         </>
       ) : (
-        // --- GRUPO 2: PANTALLAS DE USUARIOS LOGUEADOS ---
+        // Authenticated flow
         <>
           <Stack.Screen name="Drawer" component={DrawerNavigator} options={{ headerShown: false }} />
         </>

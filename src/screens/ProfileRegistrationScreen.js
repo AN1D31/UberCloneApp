@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { registerUser } from '../services/authService';
 import { setUser } from '../store/authSlice';
 
-// 1. Updated validation schema to include passwords
+// Form validation schema
 const schema = yup.object().shape({
   fullName: yup.string().required('Full name is required').max(50, 'Max 50 characters allowed'),
   phoneNumber: yup.number().typeError('Must be a valid number').required('Phone number is required'),
@@ -29,8 +29,6 @@ export const ProfileRegistrationScreen = ({ navigation }) => {
     }
   });
 
-
-// 2. Firebase Connection Logic
   const onSubmit = async (data) => {
     setIsLoading(true);
     
@@ -49,9 +47,7 @@ export const ProfileRegistrationScreen = ({ navigation }) => {
       return;
     }
 
-    // Save user session in Redux global state
     dispatch(setUser({ uid: user.uid, email: user.email }));
-    
     Alert.alert('Success', 'Account created successfully!');
   }; 
 
@@ -71,13 +67,11 @@ export const ProfileRegistrationScreen = ({ navigation }) => {
       )} />
       {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-      {/* Basic implementations for the remaining required fields to pass validation */}
       <Controller control={control} name="phoneNumber" render={({ field: { onChange, value } }) => (
         <TextInput style={styles.input} placeholder="Phone Number" onChangeText={onChange} value={value} keyboardType="numeric" />
       )} />
       {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
 
-      {/* New Password Fields */}
       <Controller control={control} name="password" render={({ field: { onChange, value } }) => (
         <TextInput style={styles.input} placeholder="Password" onChangeText={onChange} value={value} secureTextEntry autoCapitalize="none" />
       )} />
