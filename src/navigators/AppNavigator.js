@@ -7,7 +7,7 @@ import { setUser, logout } from '../store/authSlice';
 // Screens
 import LoginScreen from '../screens/LoginScreen';
 import { ProfileRegistrationScreen } from '../screens/ProfileRegistrationScreen';
-import { MapScreen } from '../screens/MapScreen'; 
+import { DrawerNavigator } from './DrawerNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +44,7 @@ export const AppNavigator = () => {
       ) : (
         // --- GRUPO 2: PANTALLAS DE USUARIOS LOGUEADOS ---
         <>
-          <Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Drawer" component={DrawerNavigator} options={{ headerShown: false }} />
         </>
       )}
     </Stack.Navigator>
