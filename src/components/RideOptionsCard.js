@@ -4,9 +4,6 @@ import { useSelector } from 'react-redux';
 import { selectTravelTimeInformation } from '../store/navSlice';
 import { useStripe } from '@stripe/stripe-react-native';
 
-// WARNING: Using Secret Key on frontend is strictly for university demo purposes.
-// In a real production environment, this must be handled by a secure backend.
-
 const SURGE_CHARGE_RATE = 1.2; 
 const RIDE_CATEGORIES = [
   { id: 'cat-1', title: 'Economy', multiplier: 1 },
@@ -44,11 +41,8 @@ export const RideOptionsCard = ({ onRideConfirmed, isRideActive }) => {
 
 const fetchPaymentIntentClientSecret = async (amount) => {
   try {
-    // For academic evaluation purposes, we can fetch or prompt this securely 
-    // or use a temporary local string that is NOT tracked, but to pass GitHub Protection,
-    // we must NOT leave the hardcoded token here.
-    const tempKey = "sk_test_51...YOUR_SECRET_KEY_HERE"; // (We will remove this before committing)
 
+    const tempKey = "sk_test_51...YOUR_SECRET_KEY_HERE"; 
     const response = await fetch('https://api.stripe.com/v1/payment_intents', {
       method: 'POST',
       headers: {
@@ -65,7 +59,7 @@ const fetchPaymentIntentClientSecret = async (amount) => {
   }
 };
 
-  // 2. Open the Native Payment Sheet
+  // Open the Native Payment Sheet
   const handlePayment = async () => {
     if (!selectedId) return;
     setIsProcessing(true);
@@ -104,7 +98,7 @@ const fetchPaymentIntentClientSecret = async (amount) => {
         Alert.alert(`Payment failed`, paymentError.message);
       } else {
         Alert.alert('Success!', 'Your ride is confirmed and paid.');
-        onRideConfirmed(); // <- Trigger the real-time tracking animation here!
+        onRideConfirmed();
       }
 
     
