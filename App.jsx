@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 // Andres's Redux Store
 import { store } from './src/store/store';
@@ -14,30 +15,35 @@ import { MapScreen } from './src/screens/MapScreen'; // Kept the named export to
 // Initialize the Stack Navigator
 const Stack = createNativeStackNavigator();
 
+// INSERT YOUR PUBLISHABLE KEY HERE (pk_test_...)
+const STRIPE_PUBLISHABLE_KEY = "pk_test_51Tbtnf2WCUMAtWEWigQDZwTqZ8tRN9Q9SwdU0m2wrJ3YBWeTcM0vnUiSzc7fWyl75upvtSpLVApPWcyvw5TdXMc800x5z8q7b3";
+
 const App = () => {
   return (
     <Provider store={store}>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Login">
-            
-            {/* Laura's Authentication Flow */}
-            <Stack.Screen 
-              name="Login" 
-              component={LoginScreen} 
-              options={{ headerShown: false }} 
-            />
+      <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Login">
+              
+              {/* Laura's Authentication Flow */}
+              <Stack.Screen 
+                name="Login" 
+                component={LoginScreen} 
+                options={{ headerShown: false }} 
+              />
 
-            {/* Andres's Core Map Flow */}
-            <Stack.Screen 
-              name="Map" 
-              component={MapScreen} 
-              options={{ headerShown: false }} 
-            />
+              {/* Andres's Core Map Flow */}
+              <Stack.Screen 
+                name="Map" 
+                component={MapScreen} 
+                options={{ headerShown: false }} 
+              />
 
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </StripeProvider>
     </Provider>
   );
 };
