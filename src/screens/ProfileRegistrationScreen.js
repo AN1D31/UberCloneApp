@@ -29,10 +29,19 @@ export const ProfileRegistrationScreen = ({ navigation }) => {
     }
   });
 
-  // 2. Firebase Connection Logic
+
+// 2. Firebase Connection Logic
   const onSubmit = async (data) => {
     setIsLoading(true);
-    const { user, error } = await registerUser(data.email, data.password);
+    
+    const userData = {
+      fullName: data.fullName,
+      phoneNumber: data.phoneNumber,
+      gender: data.gender,
+      language: data.language
+    };
+
+    const { user, error } = await registerUser(data.email, data.password, userData);
     setIsLoading(false);
 
     if (error) {
@@ -44,9 +53,7 @@ export const ProfileRegistrationScreen = ({ navigation }) => {
     dispatch(setUser({ uid: user.uid, email: user.email }));
     
     Alert.alert('Success', 'Account created successfully!');
-    // Navigate to Andres's Map
-    navigation.navigate('Map');
-  };
+  }; 
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
