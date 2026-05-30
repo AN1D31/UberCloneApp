@@ -10,51 +10,82 @@ export const TripHistoryScreen = () => {
 
   useEffect(() => {
     if (!userId) return;
-
-    // Subscribe to real-time trips updates for the current user
+    
+    // Escuchar viajes en tiempo real desde Firebase
     const unsubscribe = firestore()
       .collection('trips')
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(querySnapshot => {
-        const tripsData = [];
-        if (querySnapshot) {
-          querySnapshot.forEach(doc => {
-            tripsData.push({ id: doc.id, ...doc.data() });
+      .onSnapshot(
+        querySnapshot => {
+          if (!querySnapshot) return;
+          const tripsData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          
+          // Ordenamos por fecha en JavaScript para evitar errores de índices en Firebase a última hora
+          tripsData.sort((a, b) => {
+             const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+             const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+             return timeB - timeA;
           });
+          
+          setTrips(tripsData);
+          setLoading(false);
+        },
+        error => {
+          console.error("Error fetching trips: ", error);
+          setLoading(false);
         }
-        setTrips(tripsData);
-        setLoading(false);
-      }, error => {
-        console.error("Error fetching trips: ", error);
-        setLoading(false);
-      });
+      );
 
     return () => unsubscribe();
   }, [userId]);
 
-  if (loading) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color="#000" /></View>;
-  }
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Fecha reciente';
+    const date = timestamp.toDate();
+    return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' });
+  };
+
+  const renderTrip = ({ item }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
+        <Text style={styles.priceText}>{item.price}</Text>
+      </View>
+      
+      <View style={styles.routeContainer}>
+        <View style={styles.timeline}>
+          <View style={styles.dotStart} />
+          <View style={styles.line} />
+          <View style={styles.dotEnd} />
+        </View>
+        <View style={styles.locations}>
+          <Text style={styles.locationText} numberOfLines={1}>{item.origin?.description || 'Origen'}</Text>
+          <Text style={[styles.locationText, styles.destinationText]} numberOfLines={1}>{item.destination?.description || 'Destino'}</Text>
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Trips</Text>
-      {trips.length === 0 ? (
-        <Text style={styles.emptyText}>You haven't taken any trips yet.</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Mis Viajes</Text>
+      </View>
+      
+      {loading ? (
+        <ActivityIndicator size="large" color="#000" style={{ marginTop: 50 }} />
+      ) : trips.length === 0 ? (
+        <Text style={styles.emptyText}>Aún no has realizado ningún viaje.</Text>
       ) : (
         <FlatList
           data={trips}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.tripCard}>
-              <Text style={styles.dateText}>
-                {item.createdAt ? item.createdAt.toDate().toLocaleDateString() : 'Recent'}
-              </Text>
-              <Text style={styles.destText}>{item.destination?.description || 'Unknown Destination'}</Text>
-              <Text style={styles.priceText}>{item.price || 'Pending'}</Text>
-            </View>
-          )}
+          renderItem={renderTrip}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>
@@ -62,12 +93,31 @@ export const TripHistoryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#ffffff', padding: 20 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#000' },
-  emptyText: { fontSize: 16, color: '#666', textAlign: 'center', marginTop: 20 },
-  tripCard: { padding: 15, borderBottomWidth: 1, borderColor: '#eeeeee', marginBottom: 10 },
-  dateText: { color: '#666', fontSize: 12 },
-  destText: { color: '#000', fontSize: 16, fontWeight: 'bold', marginTop: 5 },
-  priceText: { color: '#00cc66', fontSize: 14, marginTop: 5 },
+  container: { flex: 1, backgroundColor: '#F5F5F7' },
+  header: { backgroundColor: '#000', padding: 20, paddingTop: 50, alignItems: 'center', borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
+  headerTitle: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
+  listContent: { padding: 20, paddingBottom: 100 },
+  emptyText: { textAlign: 'center', marginTop: 50, fontSize: 16, color: '#888' },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', paddingBottom: 10 },
+  dateText: { color: '#888', fontSize: 14, fontWeight: '500' },
+  priceText: { color: '#000', fontSize: 16, fontWeight: 'bold' },
+  routeContainer: { flexDirection: 'row' },
+  timeline: { width: 20, alignItems: 'center', marginRight: 10 },
+  dotStart: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#000' },
+  line: { width: 2, height: 30, backgroundColor: '#E0E0E0', marginVertical: 2 },
+  dotEnd: { width: 10, height: 10, borderRadius: 0, backgroundColor: '#276EF1' },
+  locations: { flex: 1, justifyContent: 'space-between' },
+  locationText: { fontSize: 15, color: '#333', fontWeight: '500', marginBottom: 15 },
+  destinationText: { marginBottom: 0 }
 });

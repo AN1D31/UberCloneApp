@@ -3,10 +3,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useDispatch, useSelector } from 'react-redux';
 import auth from '@react-native-firebase/auth';
 import { setUser, logout } from '../store/authSlice';
+import { View, ActivityIndicator } from 'react-native';
 
 import LoginScreen from '../screens/LoginScreen';
 import { ProfileRegistrationScreen } from '../screens/ProfileRegistrationScreen';
-import { DrawerNavigator } from './DrawerNavigator';
+import { TabNavigator } from './TabNavigator'; // Importamos la nueva barra inferior
 
 const Stack = createNativeStackNavigator();
 
@@ -14,10 +15,8 @@ export const AppNavigator = () => {
   const [initializing, setInitializing] = useState(true);
   const dispatch = useDispatch();
   
-  // Check global auth state
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
-  // Listen for Firebase auth state changes on mount
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged((user) => {
       if (user) {
@@ -28,24 +27,25 @@ export const AppNavigator = () => {
       if (initializing) setInitializing(false);
     });
     
-    return subscriber; // Cleanup subscription
+    return subscriber; 
   }, [initializing, dispatch]);
 
-  // TODO: Add splash screen component here later
-  if (initializing) return null; 
+  if (initializing) return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" color="#000" />
+    </View>
+  ); 
 
   return (
     <Stack.Navigator>
       {!isAuthenticated ? (
-        // Unauthenticated flow
         <>
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="ProfileRegistration" component={ProfileRegistrationScreen} options={{ title: 'Register Profile' }} />
+          <Stack.Screen name="ProfileRegistration" component={ProfileRegistrationScreen} options={{ title: 'Registro de Perfil' }} />
         </>
       ) : (
-        // Authenticated flow
         <>
-          <Stack.Screen name="Drawer" component={DrawerNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }} />
         </>
       )}
     </Stack.Navigator>
