@@ -10,14 +10,14 @@ import { TripHistoryScreen } from '../screens/TripHistoryScreen';
 
 const Drawer = createDrawerNavigator();
 
-// Custom drawer content
 const CustomDrawerContent = (props) => {
   const dispatch = useDispatch();
   const userEmail = useSelector(state => state.auth.user?.email);
 
+  // Función que desloguea de Firebase y de Redux
   const handleLogout = async () => {
     await logoutUser();
-    dispatch(logout()); // Triggers auto-redirect to login
+    dispatch(logout()); 
   };
 
   return (
@@ -27,12 +27,18 @@ const CustomDrawerContent = (props) => {
           <View style={styles.profileAvatar}>
             <Text style={styles.avatarText}>{userEmail ? userEmail.charAt(0).toUpperCase() : 'U'}</Text>
           </View>
-          <Text style={styles.userEmailText}>{userEmail || 'Loading...'}</Text>
+          <Text style={styles.userEmailText}>{userEmail || 'Cargando...'}</Text>
         </View>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
+      
+      {/* Botón de Cerrar Sesión */}
       <View style={styles.drawerFooter}>
-        <DrawerItem label="Sign Out" onPress={handleLogout} />
+        <DrawerItem 
+          label="Cerrar Sesión" 
+          onPress={handleLogout} 
+          labelStyle={{ color: '#d32f2f', fontWeight: 'bold' }} 
+        />
       </View>
     </View>
   );
@@ -44,8 +50,8 @@ export const DrawerNavigator = () => {
       initialRouteName="HomeMap"
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
-      <Drawer.Screen name="HomeMap" component={MapScreen} options={{ title: 'Home', headerShown: false }} />
-      <Drawer.Screen name="TripHistory" component={TripHistoryScreen} options={{ title: 'My Trips' }} />
+      <Drawer.Screen name="HomeMap" component={MapScreen} options={{ title: 'Pedir Viaje', headerShown: false }} />
+      <Drawer.Screen name="TripHistory" component={TripHistoryScreen} options={{ title: 'Mis Viajes (Historial)' }} />
     </Drawer.Navigator>
   );
 };
