@@ -4,9 +4,13 @@ import { useSelector } from 'react-redux';
 import { selectTravelTimeInformation } from '../store/navSlice';
 import { useStripe } from '@stripe/stripe-react-native';
 
+<<<<<<< HEAD
 const STRIPE_SECRET_KEY = "sk_test_51Tbtnf2WCUMAtWEWzyplBjVaca6IFLsu7AMJdOEYvAp5itKzCDo39OvCXYAS53zIoIPPS0Q8OqgBCl1Hucmf9Q4C00CuoRy4vV";
 const SURGE_CHARGE_RATE = 1.2;
 
+=======
+const SURGE_CHARGE_RATE = 1.2; 
+>>>>>>> fc1df78e7276265424723ced8046e7b095d3695d
 const RIDE_CATEGORIES = [
   { id: 'cat-1', title: 'Económico', subtitle: 'Viajes diarios y accesibles', icon: '🚗', multiplier: 1 },
   { id: 'cat-2', title: 'Uber XL', subtitle: 'Más espacio para grupos', icon: '🚙', multiplier: 1.4 },
@@ -37,6 +41,7 @@ export const RideOptionsCard = ({ onRideConfirmed, onCancel }) => {
     return Math.max(cents, 50);
   };
 
+<<<<<<< HEAD
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(price);
   };
@@ -54,6 +59,29 @@ export const RideOptionsCard = ({ onRideConfirmed, onCancel }) => {
     } catch (error) { return null; }
   };
 
+=======
+const fetchPaymentIntentClientSecret = async (amount) => {
+  try {
+
+    const tempKey = "sk_test_51...YOUR_SECRET_KEY_HERE"; 
+    const response = await fetch('https://api.stripe.com/v1/payment_intents', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${tempKey}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `amount=${amount}&currency=cop`, 
+    });
+    const data = await response.json();
+    return data.client_secret;
+  } catch (error) {
+    console.error("Error fetching client secret:", error);
+    return null;
+  }
+};
+
+  // Open the Native Payment Sheet
+>>>>>>> fc1df78e7276265424723ced8046e7b095d3695d
   const handlePayment = async () => {
     if (!selectedId) return;
     setIsProcessing(true);
@@ -84,12 +112,25 @@ export const RideOptionsCard = ({ onRideConfirmed, onCancel }) => {
     if (initError) { Alert.alert('Error', initError.message); setIsProcessing(false); return; }
 
     const { error: paymentError } = await presentPaymentSheet();
+<<<<<<< HEAD
     if (paymentError) {
       Alert.alert('Pago fallido', paymentError.message);
     } else {
       // Envía la orden exitosa de Stripe al mapa
       onRideConfirmed(finalPriceFormatted, 'Tarjeta');
     }
+=======
+
+      if (paymentError) {
+        Alert.alert(`Payment failed`, paymentError.message);
+      } else {
+        Alert.alert('Success!', 'Your ride is confirmed and paid.');
+        onRideConfirmed();
+      }
+
+    
+    
+>>>>>>> fc1df78e7276265424723ced8046e7b095d3695d
     setIsProcessing(false);
   };
 
@@ -144,6 +185,7 @@ export const RideOptionsCard = ({ onRideConfirmed, onCancel }) => {
 };
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
   container: { flex: 1, backgroundColor: '#FFFFFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingTop: 8 },
   handleBar: { width: 40, height: 4, backgroundColor: '#DDDDDD', borderRadius: 2, alignSelf: 'center', marginBottom: 12 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#000000', textAlign: 'center' },
@@ -168,3 +210,17 @@ const styles = StyleSheet.create({
   disabledButton: { backgroundColor: '#CCCCCC' },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
 });
+=======
+  container: { flex: 1, backgroundColor: '#FFFFFF', paddingTop: 15 },
+  headerTitle: { fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 15, color: '#333' },
+  optionContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  selectedOption: { backgroundColor: '#f2f2f2' },
+  detailsContainer: { flex: 1 },
+  title: { fontSize: 18, fontWeight: 'bold', color: '#000' },
+  price: { fontSize: 18, fontWeight: '600', color: '#000' },
+  buttonContainer: { padding: 15, borderTopWidth: 1, borderTopColor: '#eee' },
+  confirmButton: { backgroundColor: '#000', paddingVertical: 15, borderRadius: 8, alignItems: 'center' },
+  disabledButton: { backgroundColor: '#ccc' },
+  buttonText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' }
+});
+>>>>>>> fc1df78e7276265424723ced8046e7b095d3695d
